@@ -2,8 +2,13 @@ name: site-monitor
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    # GitHub 对 */5 极高频 cron 常跳过，改错峰三条提高命中率（公开仓 Actions 免费无限）
+    - cron: '*/10 * * * *'
+    - cron: '3-59/10 * * * *'
+    - cron: '7-59/10 * * * *'
   workflow_dispatch:
+  repository_dispatch:
+    types: [probe]
 
 permissions:
   contents: write
