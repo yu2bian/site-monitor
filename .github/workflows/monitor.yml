@@ -1,0 +1,32 @@
+name: site-monitor
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: monitor
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: run check
+        env:
+          SERVERCHAN_KEY: ${{ secrets.SERVERCHAN_KEY }}
+        run: bash monitor.sh
+
+      - name: save state
+        run: |
+          git config user.name "monitor-bot"
+          git config user.email "yu2bian@users.noreply.github.com"
+          git add state.txt
+          git diff --cached --quiet || git commit -m "state: $(cat state.txt) [skip ci]"
+          git push
